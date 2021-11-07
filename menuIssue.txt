@@ -1,0 +1,25 @@
+If you're using electron 12+ and getting an error about Menu not initialized: 
+1) npm install --save @electron/remote (installs the new remote module) 
+2) Change the const {Menu} to: const { Menu } = require('@electron/remote'); 
+3) Add this: require('@electron/remote/main').initialize()           to index.js (aka the main process).
+
+Remote was deprecated in v12 and removed in v14, where it was replaced by @electron/remote with breaking changes.
+
+11
+
+
+Tom Gonzalez
+Tom Gonzalez
+1 mese fa
+This got me close enough to figure things out with help from the docs.
+
+I would change step 3 to : 
+3) add "const remote = require('@electron/remote/main')" to index.js followed by "remote.initialize()"
+
+then add two steps of : 
+4) within the createWindow function, add "contextIsolation: false," to the webPreferences object
+5) within the createWindow function but outside where mainWindow is made, add the line "remote.enable(mainWindow.webContents)"
+
+This should make it so you are able to get the list of input sources upon pressing the corresponding button.
+
+Please note that these breaking changes were instituted for security reasons and the modern/recommended way to perform these functions now is by using a preload script where you create specific APIs to expose in the renderer.
